@@ -1,0 +1,10 @@
+1- Encoding: -1 for local, -2 for cloud, 0 to M-1 task
+2- select population length (L)
+3- select top K% fittest (elite) based on task completion time
+4- These K will be passed to the next generation.
+5- From these K selected population, we will generate (100-K)% of the population children
+6- From the K values, randomly select 2 random parents.
+7- from these parents, perform cross selection based on a random threshold, CHECK VALID? If no repeat.
+8- perform mutation, CHECK VALID? If yes, accept it in the next population, if no, repeat.
+9- repeat steps 5 to 8, until filling the population.
+10- Check stoping criteria, stop if met, otherwise repeat steps 3 to 10.
