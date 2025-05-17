@@ -179,4 +179,88 @@ def crossover_chromosomes(parent1, parent2, N, M, Pn, qn, Tn, zn, yn, dn, En, Vm
     # If no valid child found, return one of the parents (fallback)
     return [parent1, parent2]
 
+# Mutation
+def mutate_chromosome(chromosome, N, M, Pn, qn, Tn, zn, yn, dn, En, Vm, Wm, tnm):
+    max_attempts = 10
+
+    for _ in range(max_attempts):
+        mutated = chromosome.copy()
+
+        # Randomly select a task to mutate
+        idx = random.randint(0, N - 1)
+
+        # Select a new assignment different from current one
+        options = [-1, -2] + list(range(M))
+        options.remove(mutated[idx])  # remove current value to ensure change
+        mutated[idx] = random.choice(options)
+
+        # Decode and check validity
+        Ln, Cn, Snm = decode_chromosome(mutated, N, M)
+        if verify_constraints(N, M, Ln, Cn, Snm, Pn, qn, Tn, zn, yn, dn, En, Vm, Wm, tnm):
+            return mutated
+
+    # If all attempts failed, return original
+    return chromosome
+
+import random
+
+import random
+
+def genetic_algorithm(N, M, Ln, Cn, Snm, Pn, qn, Tn, zn, yn, dn, En, Vm, Wm, tnm, max_iterations, population_size, K_percent):
+    best_overall_chromosome = None
+    best_overall_fitness = float('inf')
+
+    repeated_same_optimum = 0
+    numer_of_iterations = 0
+
+    while numer_of_iterations <= max_iterations:
+        numer_of_iterations += 1
+
+        # Generate initial population
+        population = generate_population(N, M, population_size, Pn, qn, Tn, zn, yn, dn, En, Vm, Wm, tnm)
+
+        # Select elite group
+        population_elite = select_top_k_percent(population, K_percent, N, M, Pn, qn, Tn, zn, yn, dn, En, Vm, Wm, tnm)
+
+        # Generate children via crossover
+        new_population = []
+        while len(new_population) + len(population_elite) < population_size:
+            parent1 = random.choice(population_elite)
+            parent2 = random.choice(population_elite)
+            children = crossover_chromosomes(parent1, parent2, N, M, Pn, qn, Tn, zn, yn, dn, En, Vm, Wm, tnm)
+            new_population.extend(children)
+
+        # Apply mutation
+        mutated_population = []
+        for chromosome in new_population:
+            if random.random() < 0.05:  # Mutation rate applied outside the function
+                chromosome = mutate_chromosome(chromosome, N, M, Pn, qn, Tn, zn, yn, dn, En, Vm, Wm, tnm)
+            mutated_population.append(chromosome)
+
+        # Evaluate total population
+        population = population_elite + mutated_population
+        population_with_fitness = []
+        for chromosome in population:
+            Ln, Cn, Snm = decode_chromosome(chromosome, N, M)
+            fitness = average_task_completion_time(N, M, Ln, Cn, Snm, Pn, qn, Tn, zn, yn, dn, En, Vm, Wm, tnm)
+            population_with_fitness.append((chromosome, fitness))
+
+        population_with_fitness.sort(key=lambda x: x[1])
+        best_chromosome, best_fitness = population_with_fitness[0]
+
+        # Update if better fitness is found
+        if best_fitness < best_overall_fitness:
+            best_overall_chromosome = best_chromosome
+            best_overall_fitness = best_fitness
+            repeated_same_optimum = 0
+        else:
+            repeated_same_optimum += 1
+
+        # Stopping condition
+        if repeated_same_optimum > 10:
+            break
+
+    # Decode the best chromosome to get final assignment
+    Ln, Cn, Snm = decode_chromosome(best_overall_chromosome, N, M)
+    return Ln, Cn, Snm, best_overall_fitness
 
