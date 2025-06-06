@@ -320,7 +320,7 @@ def genetic_algorithm(N: int, M: int,
         # Stop if no improvement for {early_stop} iterations
         if repeated_same_optimum >= early_stop:
             if verbose:
-                print("\n>> Stopping early: no improvement in {early_stop} consecutive generations.")
+                print(f"\n>> Stopping early: no improvement in {early_stop} consecutive generations.")
             break
 
     # Decode best result

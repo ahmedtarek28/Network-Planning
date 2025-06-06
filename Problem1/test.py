@@ -1,4 +1,4 @@
-from project1 import *
+from Task_Offloading_Optimization import *
 import random
 
 def test_constraints1():
